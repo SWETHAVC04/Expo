@@ -1,0 +1,36 @@
+services:
+ mongo:
+   image: mongo:latest
+   environment:
+     MONGO_INITDB_DATABASE: ${local_exploits}
+     MONGO_INITDB_ROOT_USERNAME: ${lex}
+     MONGO_INITDB_ROOT_PASSWORD: ${AccessDenied}
+   ports:
+     - "27017:27017"
+   volumes:
+     - mongodb_data:/data/db
+   env_file:
+     - .env
+ 
+ django-web:
+   build: .
+   container_name: django-docker
+   ports:
+     - "8000:8000"
+   depends_on:
+     - mongo
+   environment:
+     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+     DEBUG: ${DEBUG}
+     DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+     DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+     DATABASE_ENGINE: mongodb
+     DATABASE_NAME: ${local_exploits}
+     DATABASE_USERNAME: ${lex}
+     DATABASE_PASSWORD: ${AccessDenied}
+     DATABASE_HOST: mongo
+     DATABASE_PORT: 27017
+   env_file:
+     - .env
+volumes:
+   mongodb_data:
